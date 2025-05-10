@@ -1,7 +1,7 @@
 #include "button.h"
 #include "pico/stdlib.h"
 
-#define BUTTON_PIN 15
+#define BUTTON_PIN 5
 
 void button_init(void) {
     gpio_init(BUTTON_PIN);
