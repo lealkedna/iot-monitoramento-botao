@@ -1,0 +1,79 @@
+/* Definindo a aparência do corpo da página */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f7fa; /* cor azul clara para representar o gelo */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url('https://disneyplusbrasil.com.br/wp-content/uploads/2024/09/A-Era-do-Gelo.jpg'); 
+    background-size: cover;
+    background-attachment: fixed; /* fundo fixo para efeito visual */
+}
+
+/* Contêiner do conteúdo */
+.container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.8); /* fundo branco translúcido */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    width: 80%;
+    max-width: 600px;
+}
+
+/* Título principal */
+h1 {
+    color: #004d40; /* cor verde-azulada */
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* sombra suave para dar destaque */
+    font-family: 'Georgia', serif; /* Fonte serifada para um toque mais rústico */
+}
+
+/* Texto do parágrafo */
+p {
+    font-size: 1.3em;
+    color: #00796b; /* cor verde escuro para complementar */
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Estilo para o botão, com efeito de gelo */
+button {
+    background-color: #00acc1; /* cor de gelo mais clara */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Efeito de hover do botão */
+button:hover {
+    background-color: #007c91; /* cor de gelo mais escura */
+    transform: scale(1.1); /* leve aumento de tamanho */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo para o status do botão */
+.status {
+    margin-top: 20px;
+    font-size: 1.5em;
+    color: #004d40;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Mensagem de temperatura */
+.temperature {
+    font-size: 1.4em;
+    color: #00796b;
+    font-weight: bold;
+    margin-top: 20px;
+}

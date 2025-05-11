@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 
 app.use(express.json());
+app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   res.send('Olá, meu servidor');
@@ -14,6 +15,17 @@ app.post('/button', (req, res) => {
   res.status(200).send({ ok: true });
 });
 
+// Variáveis de exemplo
+let buttonStatus = 'SOLTO';  // Substitua com o status real do botão
+let temperatura = 25; // Substitua com o valor real da temperatura
+
+// Rota GET para fornecer o status do botão e a temperatura
+app.get('/status', (req, res) => {
+    res.json({
+        buttonStatus: buttonStatus,
+        temperatura: temperatura
+    });
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

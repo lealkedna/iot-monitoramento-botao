@@ -76,8 +76,9 @@ static err_t http_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t er
         "<html><head><meta http-equiv='refresh' content='1'></head><body>"
         "<h1>Status do Botão</h1>"
         "<p>Botão: <strong>%s</strong></p>"
+        "<h2>Temperatura: %.2f °C</h2>"
         "</body></html>",
-        estado_botao_global ? "PRESSIONADO" : "SOLTO"
+        estado_botao_global ? "PRESSIONADO" : "SOLTO", 25.0f
     );
 
     tcp_write(tpcb, html, strlen(html), TCP_WRITE_FLAG_COPY);
