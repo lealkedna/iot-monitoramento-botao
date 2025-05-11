@@ -5,6 +5,7 @@
 
 bool connect_wifi(const char *ssid, const char *password);
 void send_button_status(bool pressed);
+void send_joystick_data(int x, int y, bool button_pressed);  
 void send_temperature_status(); 
 void update_button_state(bool pressed);
 void iniciar_http_server();

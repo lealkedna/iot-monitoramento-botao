@@ -5,15 +5,17 @@
 #include "pico/cyw43_arch.h"
 #include "lwip/netif.h"
 #include "lwip/tcp.h"
+#include "lwip/sockets.h"
+#include "lwip/inet.h"
 #include "wifi.h"
 
-// === CONFIGURAÇÕES DO LED ONBOARD ===
 #define LED_PIN CYW43_WL_GPIO_LED_PIN
+#define SERVER_IP "192.168.1.100"  // IP do servidor
+#define SERVER_PORT 3000           // Porta do servidor
 
-// === VARIÁVEL GLOBAL PARA O ESTADO DO BOTÃO ===
 static bool estado_botao_global = false;
 
-// === Função para conectar ao Wi-Fi ===
+// Função para conectar ao Wi-Fi
 bool connect_wifi(const char* ssid, const char* password) {
     printf("[Wi-Fi] Inicializando...\n");
 
@@ -35,79 +37,43 @@ bool connect_wifi(const char* ssid, const char* password) {
     }
 
     cyw43_arch_gpio_put(LED_PIN, 1); // LED onboard ligado ao conectar
-
     return true;
 }
 
-// === Atualiza o estado do botão (usado pelo main.c) ===
-void update_button_state(bool pressed) {
-    estado_botao_global = pressed;
-}
+// Função para enviar os dados do joystick ao servidor
+void send_joystick_data(int x, int y, bool button_pressed) {
+    char body[128];
+    int ts = to_ms_since_boot(get_absolute_time()) / 1000;
+    int body_len = snprintf(body, sizeof(body),
+        "{\"x\":%d,\"y\":%d,\"button\":\"%s\",\"timestamp\":%d}",
+        x, y, button_pressed ? "PRESSED" : "RELEASED", ts);
 
-// === Função auxiliar (opcional) para logar o status do botão ===
-void send_button_status(bool pressed) {
-    printf("[Wi-Fi] Botão: %s\n", pressed ? "PRESSIONADO" : "SOLTO");
-}
+    char req[256];
+    int req_len = snprintf(req, sizeof(req),
+        "POST /joystick HTTP/1.1\r\n"
+        "Host: " SERVER_IP ":%d\r\n"
+        "Content-Type: application/json\r\n"
+        "Content-Length: %d\r\n\r\n"
+        "%s",
+        SERVER_PORT, body_len, body);
 
-// === Função auxiliar (opcional) para logar temperatura ===
-void send_temperature_status() {
-    adc_select_input(4); // Temperatura interna
-    uint16_t raw = adc_read();
-    const float conv = 3.3f / (1 << 12);
-    float temp_c = 27.0f - ((raw * conv) - 0.706f) / 0.001721f;
-
-    printf("[Wi-Fi] Temperatura interna: %.2f °C\n", temp_c);
-}
-
-// === Callback ao receber requisição HTTP ===
-static err_t http_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
-    if (!p) {
-        tcp_close(tpcb);
-        tcp_recv(tpcb, NULL);
-        return ERR_OK;
-    }
-
-    pbuf_free(p); // Liberar o buffer de entrada
-
-    char html[512];
-    snprintf(html, sizeof(html),
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n\r\n"
-        "<html><head><meta http-equiv='refresh' content='1'></head><body>"
-        "<h1>Status do Botão</h1>"
-        "<p>Botão: <strong>%s</strong></p>"
-        "<h2>Temperatura: %.2f °C</h2>"
-        "</body></html>",
-        estado_botao_global ? "PRESSIONADO" : "SOLTO", 25.0f
-    );
-
-    tcp_write(tpcb, html, strlen(html), TCP_WRITE_FLAG_COPY);
-    tcp_output(tpcb);
-
-    return ERR_OK;
-}
-
-// === Callback ao aceitar conexão ===
-static err_t http_accept(void *arg, struct tcp_pcb *newpcb, err_t err) {
-    tcp_recv(newpcb, http_recv);
-    return ERR_OK;
-}
-
-// === Inicia o servidor HTTP ===
-void iniciar_http_server() {
-    struct tcp_pcb *pcb = tcp_new();
-    if (!pcb) {
-        printf("Erro ao criar socket TCP\n");
+    int sock = lwip_socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        printf("[Wi-Fi] Erro ao criar socket.\n");
         return;
     }
 
-    if (tcp_bind(pcb, IP_ADDR_ANY, 80) != ERR_OK) {
-        printf("Erro ao fazer bind da porta 80\n");
-        return;
+    struct sockaddr_in addr = {
+        .sin_family = AF_INET,
+        .sin_port   = htons(SERVER_PORT),
+    };
+    inet_aton(SERVER_IP, &addr.sin_addr);
+
+    if (lwip_connect(sock, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
+        lwip_send(sock, req, req_len, 0);  // Enviando a requisição
+    } else {
+        printf("[Wi-Fi] Erro ao conectar no servidor.\n");
     }
 
-    pcb = tcp_listen(pcb);
-    tcp_accept(pcb, http_accept);
-
-    printf("[HTTP] Servidor iniciado na porta 80\n");
+    lwip_close(sock);  // Fechando o socket
 }

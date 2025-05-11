@@ -27,6 +27,17 @@ app.get('/status', (req, res) => {
     });
 });
 
+app.get('/joystick', (req, res) => {
+  
+  const joystickData = {
+    x: Math.floor(Math.random() * 1024),  
+    y: Math.floor(Math.random() * 1024),
+    button: 'PRESSED'  
+  };
+  
+  res.json(joystickData);
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Servidor ouvindo em http://localhost:${PORT}`);

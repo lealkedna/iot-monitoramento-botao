@@ -88,6 +88,7 @@ add_executable(tarefa_iot_botao
     main.c
     wifi.c
     button.c
+    joystick.c
 )
 
 pico_set_program_name(tarefa_iot_botao "tarefa_iot_botao")
@@ -103,6 +104,9 @@ pico_enable_stdio_uart(tarefa_iot_botao 0)
 target_include_directories(tarefa_iot_botao PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${PICO_SDK_PATH}/src/rp2_common/hardware_adc/include
+    ${PICO_SDK_PATH}/src/rp2_common/pico_cyw43_arch/include
+    ${PICO_SDK_PATH}/sdk/1.5.1/lib/lwip/src/include
+
 )
 
 # Add any user requested libraries
@@ -112,7 +116,8 @@ target_link_libraries(tarefa_iot_botao
     pico_multicore 
     FreeRTOS-Kernel
     FreeRTOS-Kernel-Heap4
-    pico_cyw43_arch_lwip_threadsafe_background    
+    pico_cyw43_arch_lwip_threadsafe_background  
+    lwip  
 )
 
 pico_add_extra_outputs(tarefa_iot_botao)
